@@ -1,0 +1,29 @@
+{
+  "name": "logger",
+  "version": "0.0.0",
+  "description": "A TypeScript logger",
+  "main": "index.ts",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boristane/logger.git"
+  },
+  "keywords": [
+    "logger"
+  ],
+  "author": "Boris Tane",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/boristane/logger/issues"
+  },
+  "homepage": "https://github.com/boristane/logger#readme",
+  "devDependencies": {
+    "@types/winston": "^2.4.4",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
+  },
+  "dependencies": {
+    "winston": "^3.2.1"
+  }
+}
