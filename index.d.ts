@@ -3,7 +3,6 @@ declare namespace logger {
   function debug(message: ILogMessage): void;
   function warn(message: ILogMessage): void;
   function error(message: ILogMessage): void;
-  function emergency(message: ILogMessage): void;
 }
 
 interface ILogMessage {
