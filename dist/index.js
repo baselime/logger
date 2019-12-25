@@ -9,10 +9,9 @@ const log = winston_1.default.createLogger({
         error: 0,
         warn: 1,
         info: 2,
-        verbose: 3,
         debug: 4,
-        silly: 5
     },
+    level: process.env.LOG_LEVEL || "info",
     format: winston_1.default.format.combine(winston_1.default.format.timestamp(), winston_1.default.format.printf(info => {
         return `${info.timestamp} [${info.label}] ${info.level}: ${info.message}`;
     }), winston_1.default.format.json()),
@@ -21,12 +20,34 @@ const log = winston_1.default.createLogger({
     ]
 });
 const logger = {
-    error: (o) => log.error({ message: JSON.stringify(o) }),
-    warn: (o) => log.warn({ message: JSON.stringify(o) }),
-    info: (o) => log.info({ message: JSON.stringify(o) }),
-    verbose: (o) => log.verbose({ message: JSON.stringify(o) }),
-    debug: (o) => log.debug({ message: JSON.stringify(o) }),
-    silly: (o) => log.silly({ message: JSON.stringify(o) }),
+    error: (o) => log.error(prepareForLogging(o)),
+    warn: (o) => log.warn(prepareForLogging(o)),
+    info: (o) => log.info(prepareForLogging(o)),
+    verbose: (o) => log.verbose(prepareForLogging(o)),
+    debug: (o) => log.debug(prepareForLogging(o)),
 };
+function prepareForLogging(message) {
+    const ommitedInLogs = [
+        "forename",
+        "surname",
+        "email",
+        "password",
+    ];
+    message.data = omit(message.data, ommitedInLogs);
+    return message;
+}
+function omit(data, toOmit) {
+    let result = Object.assign({}, data);
+    Object.keys(data).forEach((key) => {
+        if (toOmit.includes(key)) {
+            delete result[key];
+            return;
+        }
+        if (typeof result[key] === "object") {
+            result[key] = omit(result[key], toOmit);
+        }
+    });
+    return result;
+}
 exports.default = logger;
 //# sourceMappingURL=index.js.map
