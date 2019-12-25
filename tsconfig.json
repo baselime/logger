@@ -5,7 +5,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
-    "strict": true,
+    // "strict": true,
     "lib": [
       "es2015"
     ],

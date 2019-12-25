@@ -28,14 +28,38 @@ interface ILogMessage {
   error?: any,
 }
 
-
 const logger = {
-  error: (o: ILogMessage) => log.error({ message: JSON.stringify(o) }),
-  warn: (o: ILogMessage) => log.warn({ message: JSON.stringify(o) }),
-  info: (o: ILogMessage) => log.info({ message: JSON.stringify(o) }),
-  verbose: (o: ILogMessage) => log.verbose({ message: JSON.stringify(o) }),
-  debug: (o: ILogMessage) => log.debug({ message: JSON.stringify(o) }),
-  silly: (o: ILogMessage) => log.silly({ message: JSON.stringify(o) }),
+  error: (o: ILogMessage) => log.error(prepareForLogging(o)),
+  warn: (o: ILogMessage) => log.warn(prepareForLogging(o)),
+  info: (o: ILogMessage) => log.info(prepareForLogging(o)),
+  verbose: (o: ILogMessage) => log.verbose(prepareForLogging(o)),
+  debug: (o: ILogMessage) => log.debug(prepareForLogging(o)),
+  silly: (o: ILogMessage) => log.silly(prepareForLogging(o)),
+}
+
+function prepareForLogging(message: ILogMessage): ILogMessage {
+  const ommitedInLogs = [
+    "forename",
+    "surname",
+    "email",
+    "password",
+  ];
+  message.data = omit(message.data, ommitedInLogs);
+  return message
+}
+
+function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyof T, string>]: T[k] } {
+  let result: T = {...data};
+  Object.keys(data).forEach((key: string) => {
+    if (toOmit.includes(key)) {
+      delete result[key];
+      return;
+    }
+    if (typeof result[key] === "object") {
+      result[key] = omit(result[key], toOmit);
+    }
+  })
+  return result;
 }
 
 export default logger;
