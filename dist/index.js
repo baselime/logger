@@ -34,6 +34,7 @@ function prepareForLogging(message) {
         "password",
     ];
     message.data = omit(message.data, ommitedInLogs);
+    message.error = omit(message.error, ommitedInLogs);
     return message;
 }
 function omit(data, toOmit) {
