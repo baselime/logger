@@ -1,14 +1,13 @@
-import winston from "winston";
+import winston, { Logger } from "winston";
 
 const log = winston.createLogger({
   levels: {
     error: 0,
     warn: 1,
     info: 2,
-    verbose: 3,
     debug: 4,
-    silly: 5
   },
+  level: process.env.LOG_LEVEL || "info",
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.printf(info => {
@@ -34,7 +33,6 @@ const logger = {
   info: (o: ILogMessage) => log.info(prepareForLogging(o)),
   verbose: (o: ILogMessage) => log.verbose(prepareForLogging(o)),
   debug: (o: ILogMessage) => log.debug(prepareForLogging(o)),
-  silly: (o: ILogMessage) => log.silly(prepareForLogging(o)),
 }
 
 function prepareForLogging(message: ILogMessage): ILogMessage {
@@ -45,7 +43,7 @@ function prepareForLogging(message: ILogMessage): ILogMessage {
     "password",
   ];
   message.data = omit(message.data, ommitedInLogs);
-  return message
+  return message;
 }
 
 function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyof T, string>]: T[k] } {
