@@ -38,6 +38,8 @@ function prepareForLogging(message) {
     return message;
 }
 function omit(data, toOmit) {
+    if (!data)
+        return data;
     let result = Object.assign({}, data);
     Object.keys(data).forEach((key) => {
         if (toOmit.includes(key)) {

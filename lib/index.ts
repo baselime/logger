@@ -48,6 +48,7 @@ function prepareForLogging(message: ILogMessage): ILogMessage {
 }
 
 function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyof T, string>]: T[k] } {
+  if (!data) return data;
   let result: T = {...data};
   Object.keys(data).forEach((key: string) => {
     if (toOmit.includes(key)) {
