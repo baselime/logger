@@ -43,7 +43,7 @@ function prepareForLogging(message: ILogMessage): ILogMessage {
     "password",
   ];
   message.data = omit(message.data, ommitedInLogs);
-  message.error = omit(message.error, ommitedInLogs);
+  message.error = message.error;
   return message;
 }
 
