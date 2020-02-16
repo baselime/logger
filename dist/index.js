@@ -4,6 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const winston_1 = __importDefault(require("winston"));
+const enumerateError = (error) => {
+    return Object.assign({
+        message: error.message,
+        stack: error.stack
+    }, error);
+};
 const log = winston_1.default.createLogger({
     levels: {
         error: 0,
@@ -20,7 +26,7 @@ const log = winston_1.default.createLogger({
     ]
 });
 const logger = {
-    error: (o) => log.error(prepareForLogging(o)),
+    error: (o) => log.log({ level: "error", message: prepareForLogging(o) }),
     warn: (o) => log.warn(prepareForLogging(o)),
     info: (o) => log.info(prepareForLogging(o)),
     verbose: (o) => log.verbose(prepareForLogging(o)),
@@ -34,8 +40,8 @@ function prepareForLogging(message) {
         "password",
     ];
     message.data = omit(message.data, ommitedInLogs);
-    message.error = message.error;
-    return message;
+    message.error = message.error ? enumerateError(message.error) : undefined;
+    return JSON.stringify(message);
 }
 function omit(data, toOmit) {
     if (!data)

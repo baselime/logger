@@ -1,4 +1,11 @@
-import winston, { Logger } from "winston";
+import winston, { Logger, format } from "winston";
+
+const enumerateError = (error: any) => {
+  return Object.assign({
+    message: error.message,
+    stack: error.stack
+  }, error);
+}
 
 const log = winston.createLogger({
   levels: {
@@ -28,14 +35,14 @@ interface ILogMessage {
 }
 
 const logger = {
-  error: (o: ILogMessage) => log.error(prepareForLogging(o)),
+  error: (o: ILogMessage) => log.log({level: "error", message: prepareForLogging(o)}),
   warn: (o: ILogMessage) => log.warn(prepareForLogging(o)),
   info: (o: ILogMessage) => log.info(prepareForLogging(o)),
   verbose: (o: ILogMessage) => log.verbose(prepareForLogging(o)),
   debug: (o: ILogMessage) => log.debug(prepareForLogging(o)),
 }
 
-function prepareForLogging(message: ILogMessage): ILogMessage {
+function prepareForLogging(message: ILogMessage) {
   const ommitedInLogs = [
     "forename",
     "surname",
@@ -43,13 +50,13 @@ function prepareForLogging(message: ILogMessage): ILogMessage {
     "password",
   ];
   message.data = omit(message.data, ommitedInLogs);
-  message.error = message.error;
-  return message;
+  message.error = message.error ? enumerateError(message.error) : undefined;
+  return JSON.stringify(message);
 }
 
 function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyof T, string>]: T[k] } {
   if (!data) return data;
-  let result: T = {...data};
+  let result: T = { ...data };
   Object.keys(data).forEach((key: string) => {
     if (toOmit.includes(key)) {
       delete result[key];
