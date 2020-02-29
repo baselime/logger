@@ -60,9 +60,9 @@ function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyo
       delete result[key];
       return;
     }
-    if (typeof result[key] === "object") {
-      result[key] = omit(result[key], toOmit);
-    }
+    // if (typeof result[key] === "object") {
+    //   result[key] = omit(result[key], toOmit);
+    // }
   })
   return result;
 }
