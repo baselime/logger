@@ -22,11 +22,13 @@
   },
   "homepage": "https://github.com/boristane/logger#readme",
   "devDependencies": {
+    "@types/cls-hooked": "^4.3.0",
     "@types/node": "^12.12.21",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.3"
   },
   "dependencies": {
+    "cls-hooked": "^4.2.2",
     "tracer": "^1.0.2"
   }
 }

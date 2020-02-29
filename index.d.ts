@@ -1,15 +1,8 @@
-declare namespace logger {
-  function info(message: ILogMessage): void;
-  function debug(message: ILogMessage): void;
-  function warn(message: ILogMessage): void;
-  function error(message: ILogMessage): void;
-}
-
-interface ILogMessage {
-  data: Object,
-  message: string,
-  correlationId: string,
-  error?: any,
-}
-
-export = logger;
+export function debug(message: string, extra?: Record<string, any>): void;
+export function info(message: string, extra?: Record<string, any>): void;
+export function warn(message: string, extra?: Record<string, any>): void;
+export function error(message: string, extra?: Record<string, any>): void;
+export function fatal(message: string, extra?: Record<string, any>): void;
+export function bindExpressMiddleware(req: any, res: any, next: any): void;
+export function bindFunction(func: Function): any;
+export function getCorrelationId(): string;

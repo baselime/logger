@@ -1,47 +1,89 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const log = require('tracer').colorConsole({
-    format: [
-        '{{timestamp}} <{{title}}> {{message}} (in {{file}}:{{line}})',
-        {
-            error: '{{timestamp}} <{{title}}> {{message}} (in {{file}}:{{line}})\nCall Stack:\n{{stack}}'
-        }
-    ],
-    dateformat: "isoDateTime",
-    preprocess: function (data) {
-        data.title = data.title.toUpperCase();
-    }
-});
-const logger = {
-    error: (o) => log.log({ level: "error", message: prepareForLogging(o) }),
-    warn: (o) => log.warn(prepareForLogging(o)),
-    info: (o) => log.info(prepareForLogging(o)),
-    debug: (o) => log.debug(prepareForLogging(o)),
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-function prepareForLogging(message) {
-    const ommitedInLogs = [
-        "forename",
-        "surname",
-        "email",
-        "password",
-    ];
-    message.data = omit(message.data, ommitedInLogs);
-    return message;
+Object.defineProperty(exports, "__esModule", { value: true });
+const cls_hooked_1 = __importDefault(require("cls-hooked"));
+const uuid_1 = require("uuid");
+const logLevels = {
+    debug: 1,
+    info: 2,
+    warn: 3,
+    error: 4,
+    fatal: 5,
+};
+const logLevel = logLevels[process.env.LOG_LEVEL || ""] || logLevels.info;
+const namespace = 'lesley';
+const ns = cls_hooked_1.default.createNamespace(namespace);
+function buildMessage(level, message, extra) {
+    var _a, _b;
+    let log = {
+        message,
+        extra,
+        time: (new Date).toISOString(),
+        correlationId: cls_hooked_1.default.getNamespace(namespace).get('correlationId'),
+        level,
+    };
+    if ((_a = extra) === null || _a === void 0 ? void 0 : _a.correlationId) {
+        log.correlationId = extra.correlationId;
+        extra.correlationId = undefined;
+    }
+    if ((_b = extra) === null || _b === void 0 ? void 0 : _b.error) {
+        Object.assign(log, { error: enumerateError(extra.error) });
+    }
+    return log;
 }
-function omit(data, toOmit) {
-    if (!data)
-        return data;
-    let result = Object.assign({}, data);
-    Object.keys(data).forEach((key) => {
-        if (toOmit.includes(key)) {
-            delete result[key];
-            return;
-        }
-        if (typeof result[key] === "object") {
-            result[key] = omit(result[key], toOmit);
-        }
+function enumerateError(error) {
+    return Object.assign({
+        message: error.message,
+        stack: error.stack
+    }, error);
+}
+function log(level, message, extra) {
+    if (logLevel <= logLevels[level]) {
+        const m = JSON.stringify(buildMessage(level, message, extra));
+        process.stdout.write(`${m}\n`);
+    }
+}
+function debug(message, extra) { log("debug", message, extra); }
+exports.debug = debug;
+function info(message, extra) { log("info", message, extra); }
+exports.info = info;
+function warn(message, extra) { log("warn", message, extra); }
+exports.warn = warn;
+function error(message, extra) { log("error", message, extra); }
+exports.error = error;
+function fatal(message, extra) { log("fatal", message, extra); }
+exports.fatal = fatal;
+function bindExpressMiddleware(req, res, next) {
+    ns.bindEmitter(req);
+    ns.bindEmitter(res);
+    ns.run(() => {
+        const correlationId = req.header("x-correlation-id") || uuid_1.v4();
+        cls_hooked_1.default.getNamespace(namespace).set("correlationId", correlationId);
+        next();
     });
-    return result;
 }
-exports.default = logger;
+exports.bindExpressMiddleware = bindExpressMiddleware;
+function bindFunction(func) {
+    return ns.bind(function () {
+        cls_hooked_1.default.getNamespace(namespace).set("correlationId", uuid_1.v4());
+        return func.apply(null, arguments);
+    });
+}
+exports.bindFunction = bindFunction;
+function getCorrelationId() {
+    return cls_hooked_1.default.getNamespace(namespace).get('correlationId');
+}
+exports.getCorrelationId = getCorrelationId;
+exports.default = {
+    debug,
+    info,
+    warn,
+    error,
+    fatal,
+    bindExpressMiddleware,
+    bindFunction,
+    getCorrelationId,
+};
 //# sourceMappingURL=index.js.map
