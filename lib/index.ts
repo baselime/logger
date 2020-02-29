@@ -17,7 +17,7 @@ const ns = cls.createNamespace(namespace);
 function buildMessage(level: string, message: string, extra?: Record<string, any>): logMessage {
   let log = {
     message,
-    extra,
+    extra: prepareForLogging(extra),
     time: (new Date).toISOString(),
     correlationId: cls.getNamespace(namespace).get('correlationId'),
     level,
@@ -40,6 +40,31 @@ function enumerateError(error: Error) {
     message: error.message,
     stack: error.stack
   }, error);
+}
+
+function prepareForLogging(extra: Record<string, any>) {
+  const ommitedInLogs = [
+    "forename",
+    "surname",
+    "email",
+    "password",
+  ];
+  return omit(extra, ommitedInLogs);
+}
+
+function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyof T, string>]: T[k] } {
+  if (!data) return data;
+  let result: T = { ...data };
+  Object.keys(data).forEach((key: string) => {
+    if (toOmit.includes(key)) {
+      delete result[key];
+      return;
+    }
+    if (typeof result[key] === "object") {
+      result[key] = omit(result[key], toOmit);
+    }
+  })
+  return result;
 }
 
 function log(level: "info" | "debug" | "warn" | "error" | "fatal", message: string, extra?: Record<string, any>) {

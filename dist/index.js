@@ -19,7 +19,7 @@ function buildMessage(level, message, extra) {
     var _a, _b;
     let log = {
         message,
-        extra,
+        extra: prepareForLogging(extra),
         time: (new Date).toISOString(),
         correlationId: cls_hooked_1.default.getNamespace(namespace).get('correlationId'),
         level,
@@ -38,6 +38,30 @@ function enumerateError(error) {
         message: error.message,
         stack: error.stack
     }, error);
+}
+function prepareForLogging(extra) {
+    const ommitedInLogs = [
+        "forename",
+        "surname",
+        "email",
+        "password",
+    ];
+    return omit(extra, ommitedInLogs);
+}
+function omit(data, toOmit) {
+    if (!data)
+        return data;
+    let result = Object.assign({}, data);
+    Object.keys(data).forEach((key) => {
+        if (toOmit.includes(key)) {
+            delete result[key];
+            return;
+        }
+        if (typeof result[key] === "object") {
+            result[key] = omit(result[key], toOmit);
+        }
+    });
+    return result;
 }
 function log(level, message, extra) {
     if (logLevel <= logLevels[level]) {
