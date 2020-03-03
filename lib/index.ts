@@ -60,9 +60,6 @@ function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyo
       delete result[key];
       return;
     }
-    // if (typeof result[key] === "object") {
-    //   result[key] = omit(result[key], toOmit);
-    // }
   })
   return result;
 }
@@ -90,9 +87,9 @@ export function bindExpressMiddleware(req: any, res: any, next: any) {
   });
 }
 
-export function bindFunction(func: Function): any {
+export function bindFunction(func: Function, correlationId: string = ""): any {
   return ns.bind(function () {
-    cls.getNamespace(namespace).set("correlationId", uuid());
+    cls.getNamespace(namespace).set("correlationId", correlationId || uuid());
     return func.apply(null, arguments);
   });
 }

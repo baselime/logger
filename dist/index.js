@@ -57,9 +57,6 @@ function omit(data, toOmit) {
             delete result[key];
             return;
         }
-        // if (typeof result[key] === "object") {
-        //   result[key] = omit(result[key], toOmit);
-        // }
     });
     return result;
 }
@@ -89,9 +86,9 @@ function bindExpressMiddleware(req, res, next) {
     });
 }
 exports.bindExpressMiddleware = bindExpressMiddleware;
-function bindFunction(func) {
+function bindFunction(func, correlationId = "") {
     return ns.bind(function () {
-        cls_hooked_1.default.getNamespace(namespace).set("correlationId", uuid_1.v4());
+        cls_hooked_1.default.getNamespace(namespace).set("correlationId", correlationId || uuid_1.v4());
         return func.apply(null, arguments);
     });
 }
