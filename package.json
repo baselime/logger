@@ -1,6 +1,6 @@
 {
   "name": "logger",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A TypeScript logger",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,6 +15,7 @@
   "keywords": [
     "logger"
   ],
+  "publishConfig": { "registry": "https://npm.pkg.github.com/@boristane" },
   "author": "Boris Tane",
   "license": "ISC",
   "bugs": {
