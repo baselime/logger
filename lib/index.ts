@@ -30,6 +30,7 @@ function buildMessage(level: string, message: string, extra?: Record<string, any
 
   if (extra?.error) {
     Object.assign(log, {error: enumerateError(extra.error)});
+    extra.error = undefined;
   }
 
   return log;

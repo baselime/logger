@@ -30,6 +30,7 @@ function buildMessage(level, message, extra) {
     }
     if ((_b = extra) === null || _b === void 0 ? void 0 : _b.error) {
         Object.assign(log, { error: enumerateError(extra.error) });
+        extra.error = undefined;
     }
     return log;
 }
