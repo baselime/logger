@@ -15,7 +15,9 @@
   "keywords": [
     "logger"
   ],
-  "publishConfig": { "registry": "https://npm.pkg.github.com/@boristane" },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@boristane"
+  },
   "author": "Boris Tane",
   "license": "ISC",
   "bugs": {
