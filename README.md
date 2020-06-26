@@ -16,10 +16,10 @@ Use the `bindExpressMiddleware` function to get a single correlation id per requ
 import express from "express";
 import logger from "@boristane/logger"
 
-const app = express()
+const app = express();
 
-app.use(logger.bindExpressMiddleware)
-app.get('/', homePage)
+app.use(logger.bindExpressMiddleware);
+app.get('/', homePage);
 
 function homePage(req, res) {
   const message = "Typing something";
@@ -46,4 +46,22 @@ function doSomethingFunction(input: any) {
     logger.error("Houston we have a problem", {error: err, input});
   }
 }
+```
+
+## Debug Logs
+
+By default this logger does not log debug logs. These can be activated using the environment variable at application. For a more granular control of which debug logs to activate, the following pattern can be used.
+
+```ts
+import logger from "@boristane/logger";
+
+logger.debug("This debug log will not be logged");
+
+logger.enableDebug();
+
+logger.debug("This debug log will be logged");
+
+logger.disableDebug();
+
+logger.debug("This debug log will not be logged);
 ```

@@ -6,6 +6,8 @@ export declare function fatal(message: string, extra?: Record<string, any>): voi
 export declare function bindExpressMiddleware(req: any, res: any, next: any): void;
 export declare function bindFunction(func: Function, correlationId?: string): any;
 export declare function getCorrelationId(): string;
+export declare function enableDebug(): void;
+export declare function disableDebug(): void;
 declare const _default: {
     debug: typeof debug;
     info: typeof info;
@@ -15,5 +17,7 @@ declare const _default: {
     bindExpressMiddleware: typeof bindExpressMiddleware;
     bindFunction: typeof bindFunction;
     getCorrelationId: typeof getCorrelationId;
+    enableDebug: typeof enableDebug;
+    disableDebug: typeof disableDebug;
 };
 export default _default;

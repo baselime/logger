@@ -9,7 +9,7 @@ const logLevels: Record<string, number> = {
   fatal: 5,
 }
 
-const logLevel = logLevels[process.env.LOG_LEVEL || ""] || logLevels.info;
+let logLevel = logLevels[process.env.LOG_LEVEL || ""] || logLevels.info;
 
 const namespace = 'lesley';
 const ns = cls.createNamespace(namespace);
@@ -29,7 +29,7 @@ function buildMessage(level: string, message: string, extra?: Record<string, any
   }
 
   if (extra?.error) {
-    Object.assign(log, {error: enumerateError(extra.error)});
+    Object.assign(log, { error: enumerateError(extra.error) });
     extra.error = undefined;
   }
 
@@ -99,6 +99,14 @@ export function getCorrelationId(): string {
   return cls.getNamespace(namespace).get('correlationId');
 }
 
+export function enableDebug(): void {
+  logLevel = logLevels.debug;
+}
+
+export function disableDebug(): void {
+  logLevel = logLevels.info;
+}
+
 interface logMessage {
   time: string;
   level: string;
@@ -116,4 +124,6 @@ export default {
   bindExpressMiddleware,
   bindFunction,
   getCorrelationId,
+  enableDebug,
+  disableDebug,
 }

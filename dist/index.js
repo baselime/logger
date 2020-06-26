@@ -12,7 +12,7 @@ const logLevels = {
     error: 4,
     fatal: 5,
 };
-const logLevel = logLevels[process.env.LOG_LEVEL || ""] || logLevels.info;
+let logLevel = logLevels[process.env.LOG_LEVEL || ""] || logLevels.info;
 const namespace = 'lesley';
 const ns = cls_hooked_1.default.createNamespace(namespace);
 function buildMessage(level, message, extra) {
@@ -98,6 +98,14 @@ function getCorrelationId() {
     return cls_hooked_1.default.getNamespace(namespace).get('correlationId');
 }
 exports.getCorrelationId = getCorrelationId;
+function enableDebug() {
+    logLevel = logLevels.debug;
+}
+exports.enableDebug = enableDebug;
+function disableDebug() {
+    logLevel = logLevels.info;
+}
+exports.disableDebug = disableDebug;
 exports.default = {
     debug,
     info,
@@ -107,5 +115,7 @@ exports.default = {
     bindExpressMiddleware,
     bindFunction,
     getCorrelationId,
+    enableDebug,
+    disableDebug,
 };
 //# sourceMappingURL=index.js.map
