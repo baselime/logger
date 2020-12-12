@@ -30,6 +30,7 @@ function buildMessage(level: string, message: string, extra?: Record<string, any
 
   if (extra?.error) {
     Object.assign(log, { error: enumerateError(extra.error) });
+    extra.error = "";
     delete extra.error;
   }
 
@@ -50,6 +51,15 @@ function prepareForLogging(extra: Record<string, any>) {
     "email",
     "password",
   ];
+
+  if (typeof extra.body === "object" && extra.body !== null){
+    try {
+      extra.body = JSON.stringify(extra.body);
+    } catch(error) {
+      extra.body = "There was an error parsing this in the logger";
+    }
+  }
+  
   return omit(extra, ommitedInLogs);
 }
 

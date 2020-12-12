@@ -30,6 +30,7 @@ function buildMessage(level, message, extra) {
     }
     if ((_b = extra) === null || _b === void 0 ? void 0 : _b.error) {
         Object.assign(log, { error: enumerateError(extra.error) });
+        extra.error = "";
         delete extra.error;
     }
     return log;
@@ -47,6 +48,14 @@ function prepareForLogging(extra) {
         "email",
         "password",
     ];
+    if (typeof extra.body === "object" && extra.body !== null) {
+        try {
+            extra.body = JSON.stringify(extra.body);
+        }
+        catch (error) {
+            extra.body = "There was an error parsing this in the logger";
+        }
+    }
     return omit(extra, ommitedInLogs);
 }
 function omit(data, toOmit) {
