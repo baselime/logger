@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "cls-hooked": "^4.2.2",
-    "tracer": "^1.0.2"
+    "tracer": "^1.0.2",
+    "uuid": "^8.3.2"
   }
 }

@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.disableDebug = exports.enableDebug = exports.getCorrelationId = exports.bindFunction = exports.bindExpressMiddleware = exports.fatal = exports.error = exports.warn = exports.info = exports.debug = void 0;
 const cls_hooked_1 = __importDefault(require("cls-hooked"));
 const uuid_1 = require("uuid");
 const logLevels = {
@@ -16,7 +17,6 @@ let logLevel = logLevels[process.env.LOG_LEVEL || ""] || logLevels.info;
 const namespace = 'lesley';
 const ns = cls_hooked_1.default.createNamespace(namespace);
 function buildMessage(level, message, extra) {
-    var _a, _b;
     let log = {
         message,
         extra: prepareForLogging(extra),
@@ -24,11 +24,11 @@ function buildMessage(level, message, extra) {
         correlationId: cls_hooked_1.default.getNamespace(namespace).get('correlationId'),
         level,
     };
-    if ((_a = extra) === null || _a === void 0 ? void 0 : _a.correlationId) {
+    if (extra === null || extra === void 0 ? void 0 : extra.correlationId) {
         log.correlationId = extra.correlationId;
         extra.correlationId = undefined;
     }
-    if ((_b = extra) === null || _b === void 0 ? void 0 : _b.error) {
+    if (extra === null || extra === void 0 ? void 0 : extra.error) {
         Object.assign(log, { error: enumerateError(extra.error) });
         extra.error = "";
         delete extra.error;
