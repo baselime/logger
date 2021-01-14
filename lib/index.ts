@@ -52,7 +52,7 @@ function prepareForLogging(extra: Record<string, any>) {
     "password",
   ];
 
-  if (typeof extra.body === "object" && extra.body !== null){
+  if (typeof extra?.body === "object" && extra?.body !== null){
     try {
       extra.body = JSON.stringify(extra.body);
     } catch(error) {

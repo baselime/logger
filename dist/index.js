@@ -48,7 +48,7 @@ function prepareForLogging(extra) {
         "email",
         "password",
     ];
-    if (typeof extra.body === "object" && extra.body !== null) {
+    if (typeof (extra === null || extra === void 0 ? void 0 : extra.body) === "object" && (extra === null || extra === void 0 ? void 0 : extra.body) !== null) {
         try {
             extra.body = JSON.stringify(extra.body);
         }
