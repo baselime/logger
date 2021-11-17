@@ -7,11 +7,11 @@ const logLevels: Record<string, number> = {
   warn: 3,
   error: 4,
   fatal: 5,
-}
+};
 
 let logLevel = logLevels[process.env.LOG_LEVEL || ""] || logLevels.info;
 
-const namespace = 'lesley';
+const namespace = 'baselime';
 const ns = cls.createNamespace(namespace);
 
 function buildMessage(level: string, message: string, extra?: Record<string, any>): logMessage {
@@ -21,7 +21,7 @@ function buildMessage(level: string, message: string, extra?: Record<string, any
     time: (new Date).toISOString(),
     correlationId: cls.getNamespace(namespace).get('correlationId'),
     level,
-  }
+  };
 
   if (extra?.correlationId) {
     log.correlationId = extra.correlationId;
@@ -52,14 +52,14 @@ function prepareForLogging(extra: Record<string, any>) {
     "password",
   ];
 
-  if (typeof extra?.body === "object" && extra?.body !== null){
+  if (typeof extra?.body === "object" && extra?.body !== null) {
     try {
       extra.body = JSON.stringify(extra.body);
-    } catch(error) {
+    } catch (error) {
       extra.body = "There was an error parsing this in the logger";
     }
   }
-  
+
   return omit(extra, ommitedInLogs);
 }
 
@@ -71,22 +71,25 @@ function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyo
       delete result[key];
       return;
     }
-  })
+  });
   return result;
 }
 
 function log(level: "info" | "debug" | "warn" | "error" | "fatal", message: string, extra?: Record<string, any>) {
   if (logLevel <= logLevels[level]) {
     const m = JSON.stringify(buildMessage(level, message, extra));
+    if (level === "error" || level === "fatal") {
+      process.stderr.write(`${m}\n`);
+    }
     process.stdout.write(`${m}\n`);
   }
 }
 
-export function debug(message: string, extra?: Record<string, any>) { log("debug", message, extra) }
-export function info(message: string, extra?: Record<string, any>) { log("info", message, extra) }
-export function warn(message: string, extra?: Record<string, any>) { log("warn", message, extra) }
-export function error(message: string, extra?: Record<string, any>) { log("error", message, extra) }
-export function fatal(message: string, extra?: Record<string, any>) { log("fatal", message, extra) }
+export function debug(message: string, extra?: Record<string, any>) { log("debug", message, extra); }
+export function info(message: string, extra?: Record<string, any>) { log("info", message, extra); }
+export function warn(message: string, extra?: Record<string, any>) { log("warn", message, extra); }
+export function error(message: string, extra?: Record<string, any>) { log("error", message, extra); }
+export function fatal(message: string, extra?: Record<string, any>) { log("fatal", message, extra); }
 
 export function bindExpressMiddleware(req: any, res: any, next: any) {
   ns.bindEmitter(req);
@@ -136,4 +139,4 @@ export default {
   getCorrelationId,
   enableDebug,
   disableDebug,
-}
+};
