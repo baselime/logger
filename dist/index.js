@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.disableDebug = exports.enableDebug = exports.getCorrelationId = exports.bindFunction = exports.bindExpressMiddleware = exports.fatal = exports.error = exports.warn = exports.info = exports.debug = void 0;
+exports.disableDebug = exports.enableDebug = exports.getRequestId = exports.getTraceId = exports.bindFunction = exports.bindExpressMiddleware = exports.fatal = exports.error = exports.warn = exports.info = exports.debug = void 0;
 const cls_hooked_1 = __importDefault(require("cls-hooked"));
 const uuid_1 = require("uuid");
 const logLevels = {
@@ -14,23 +14,28 @@ const logLevels = {
     fatal: 5,
 };
 let logLevel = logLevels[process.env.LOG_LEVEL || ""] || logLevels.info;
-const namespace = 'lesley';
+const namespace = 'baselime';
 const ns = cls_hooked_1.default.createNamespace(namespace);
 function buildMessage(level, message, extra) {
-    let log = {
+    const log = {
         message,
         extra: prepareForLogging(extra),
         time: (new Date).toISOString(),
-        correlationId: cls_hooked_1.default.getNamespace(namespace).get('correlationId'),
+        traceId: cls_hooked_1.default.getNamespace(namespace).get('traceId'),
+        requestId: cls_hooked_1.default.getNamespace(namespace).get('requestId'),
         level,
     };
-    if (extra === null || extra === void 0 ? void 0 : extra.correlationId) {
-        log.correlationId = extra.correlationId;
-        extra.correlationId = undefined;
+    if (extra === null || extra === void 0 ? void 0 : extra.traceId) {
+        log.traceId = extra.traceId;
+        extra.traceId = undefined;
+    }
+    if (extra === null || extra === void 0 ? void 0 : extra.requestId) {
+        log.requestId = extra.requestId;
+        extra.requestId = undefined;
     }
     if (extra === null || extra === void 0 ? void 0 : extra.error) {
         Object.assign(log, { error: enumerateError(extra.error) });
-        extra.error = "";
+        extra.error = {};
         delete extra.error;
     }
     return log;
@@ -73,6 +78,9 @@ function omit(data, toOmit) {
 function log(level, message, extra) {
     if (logLevel <= logLevels[level]) {
         const m = JSON.stringify(buildMessage(level, message, extra));
+        if (level === "error" || level === "fatal") {
+            process.stderr.write(`${m}\n`);
+        }
         process.stdout.write(`${m}\n`);
     }
 }
@@ -90,23 +98,30 @@ function bindExpressMiddleware(req, res, next) {
     ns.bindEmitter(req);
     ns.bindEmitter(res);
     ns.run(() => {
-        const correlationId = req.header("x-correlation-id") || uuid_1.v4();
-        cls_hooked_1.default.getNamespace(namespace).set("correlationId", correlationId);
+        const traceId = req.header("x-trace-id") || uuid_1.v4();
+        const requestId = req.header("x-request-id") || uuid_1.v4();
+        cls_hooked_1.default.getNamespace(namespace).set("traceId", traceId);
+        cls_hooked_1.default.getNamespace(namespace).set("requestId", requestId);
         next();
     });
 }
 exports.bindExpressMiddleware = bindExpressMiddleware;
-function bindFunction(func, correlationId = "") {
+function bindFunction(func, requestId = "", traceId = "") {
     return ns.bind(function () {
-        cls_hooked_1.default.getNamespace(namespace).set("correlationId", correlationId || uuid_1.v4());
+        cls_hooked_1.default.getNamespace(namespace).set("requestId", requestId || uuid_1.v4());
+        cls_hooked_1.default.getNamespace(namespace).set("traceId", traceId || uuid_1.v4());
         return func.apply(null, arguments);
     });
 }
 exports.bindFunction = bindFunction;
-function getCorrelationId() {
-    return cls_hooked_1.default.getNamespace(namespace).get('correlationId');
+function getTraceId() {
+    return cls_hooked_1.default.getNamespace(namespace).get('traceId');
 }
-exports.getCorrelationId = getCorrelationId;
+exports.getTraceId = getTraceId;
+function getRequestId() {
+    return cls_hooked_1.default.getNamespace(namespace).get('requestId');
+}
+exports.getRequestId = getRequestId;
 function enableDebug() {
     logLevel = logLevels.debug;
 }
@@ -123,8 +138,9 @@ exports.default = {
     fatal,
     bindExpressMiddleware,
     bindFunction,
-    getCorrelationId,
+    getTraceId,
     enableDebug,
     disableDebug,
+    getRequestId,
 };
 //# sourceMappingURL=index.js.map

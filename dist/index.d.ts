@@ -4,8 +4,9 @@ export declare function warn(message: string, extra?: Record<string, any>): void
 export declare function error(message: string, extra?: Record<string, any>): void;
 export declare function fatal(message: string, extra?: Record<string, any>): void;
 export declare function bindExpressMiddleware(req: any, res: any, next: any): void;
-export declare function bindFunction(func: Function, correlationId?: string): any;
-export declare function getCorrelationId(): string;
+export declare function bindFunction(func: Function, requestId?: string, traceId?: string): any;
+export declare function getTraceId(): string;
+export declare function getRequestId(): string;
 export declare function enableDebug(): void;
 export declare function disableDebug(): void;
 declare const _default: {
@@ -16,8 +17,9 @@ declare const _default: {
     fatal: typeof fatal;
     bindExpressMiddleware: typeof bindExpressMiddleware;
     bindFunction: typeof bindFunction;
-    getCorrelationId: typeof getCorrelationId;
+    getTraceId: typeof getTraceId;
     enableDebug: typeof enableDebug;
     disableDebug: typeof disableDebug;
+    getRequestId: typeof getRequestId;
 };
 export default _default;

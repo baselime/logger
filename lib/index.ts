@@ -15,22 +15,28 @@ const namespace = 'baselime';
 const ns = cls.createNamespace(namespace);
 
 function buildMessage(level: string, message: string, extra?: Record<string, any>): logMessage {
-  let log = {
+  const log: logMessage = {
     message,
     extra: prepareForLogging(extra),
     time: (new Date).toISOString(),
-    correlationId: cls.getNamespace(namespace).get('correlationId'),
+    traceId: cls.getNamespace(namespace).get('traceId'),
+    requestId: cls.getNamespace(namespace).get('requestId'),
     level,
   };
 
-  if (extra?.correlationId) {
-    log.correlationId = extra.correlationId;
-    extra.correlationId = undefined;
+  if (extra?.traceId) {
+    log.traceId = extra.traceId;
+    extra.traceId = undefined;
+  }
+
+  if (extra?.requestId) {
+    log.requestId = extra.requestId;
+    extra.requestId = undefined;
   }
 
   if (extra?.error) {
     Object.assign(log, { error: enumerateError(extra.error) });
-    extra.error = "";
+    extra.error = {};
     delete extra.error;
   }
 
@@ -95,21 +101,28 @@ export function bindExpressMiddleware(req: any, res: any, next: any) {
   ns.bindEmitter(req);
   ns.bindEmitter(res);
   ns.run(() => {
-    const correlationId = req.header("x-correlation-id") || uuid();
-    cls.getNamespace(namespace).set("correlationId", correlationId);
+    const traceId = req.header("x-trace-id") || uuid();
+    const requestId = req.header("x-request-id") || uuid();
+    cls.getNamespace(namespace).set("traceId", traceId);
+    cls.getNamespace(namespace).set("requestId", requestId);
     next();
   });
 }
 
-export function bindFunction(func: Function, correlationId: string = ""): any {
+export function bindFunction(func: Function, requestId: string = "", traceId: string = ""): any {
   return ns.bind(function () {
-    cls.getNamespace(namespace).set("correlationId", correlationId || uuid());
+    cls.getNamespace(namespace).set("requestId", requestId || uuid());
+    cls.getNamespace(namespace).set("traceId", traceId || uuid());
     return func.apply(null, arguments);
   });
 }
 
-export function getCorrelationId(): string {
-  return cls.getNamespace(namespace).get('correlationId');
+export function getTraceId(): string {
+  return cls.getNamespace(namespace).get('traceId');
+}
+
+export function getRequestId(): string {
+  return cls.getNamespace(namespace).get('requestId');
 }
 
 export function enableDebug(): void {
@@ -125,7 +138,8 @@ interface logMessage {
   level: string;
   message: string;
   extra: Record<string, any>;
-  correlationId: string;
+  traceId: string;
+  requestId: string;
 }
 
 export default {
@@ -136,7 +150,8 @@ export default {
   fatal,
   bindExpressMiddleware,
   bindFunction,
-  getCorrelationId,
+  getTraceId,
   enableDebug,
   disableDebug,
+  getRequestId,
 };
