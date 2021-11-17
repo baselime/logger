@@ -1,6 +1,6 @@
 # logger
 
-A TypeScript logger with all the resources to manage correlation Ids.
+A TypeScript logger with all the resources to manage request and trace ids.
 
 ## Environment variables
 
@@ -10,11 +10,11 @@ A TypeScript logger with all the resources to manage correlation Ids.
 
 ### With an express server
 
-Use the `bindExpressMiddleware` function to get a single correlation id per request. This will look for an `x-correlation-id` header on the incoming request and use it, or else it will create a new one.
+Use the `bindExpressMiddleware` function to get a single trace id and request id per request. This will look for the `x-trace-id` an `x-request-id` headers on the incoming request and use them, or else it will create ones.
 
 ```ts
 import express from "express";
-import logger from "@boristane/logger"
+import logger from "@baselime/logger"
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.get('/', homePage);
 
 function homePage(req, res) {
   const message = "Typing something";
-    logger.info("Got the message for the user", {message});
+    logger.info("Got the message for the user", { message });
     res.send(message);
 }
 
@@ -33,17 +33,19 @@ app.listen(3000);
 ## With a process
 
 ```ts
-import logger from "@boristane/logger";
+import logger from "@baselime/logger";
 
 export function doSomething(input: any) {
-  return logger.bingFunction(doSomethingFunction)(input);
+  const requestId = "request-id";
+  const traceId = "trace-id";
+  return logger.bindFunction(doSomethingFunction, requestId, traceId)(input);
 }
 
 function doSomethingFunction(input: any) {
   try {
-    logger.info("I got the input", {input});
+    logger.info("I got the input", { input });
   } catch(err) {
-    logger.error("Houston we have a problem", {error: err, input});
+    logger.error("Houston we have a problem", { error: err, input });
   }
 }
 ```
@@ -53,7 +55,7 @@ function doSomethingFunction(input: any) {
 By default this logger does not log debug logs. These can be activated using the environment variable at application. For a more granular control of which debug logs to activate, the following pattern can be used.
 
 ```ts
-import logger from "@boristane/logger";
+import logger from "@baselime/logger";
 
 logger.debug("This debug log will not be logged");
 
