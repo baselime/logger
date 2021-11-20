@@ -79,7 +79,7 @@ function log(level, message, extra) {
     if (logLevel <= logLevels[level]) {
         const m = JSON.stringify(buildMessage(level, message, extra));
         if (level === "error" || level === "fatal") {
-            process.stderr.write(`${m}\n`);
+            return process.stderr.write(`${m}\n`);
         }
         process.stdout.write(`${m}\n`);
     }
