@@ -81,14 +81,34 @@ function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyo
   return result;
 }
 
+function replacer() {
+  const visited = new WeakSet();
+  return (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (visited.has(value)) {
+        return;
+      }
+      visited.add(value);
+    }
+    return value;
+  };
+};
+
+
 function log(level: "info" | "debug" | "warn" | "error" | "fatal", message: string, extra?: Record<string, any>) {
   if (logLevel <= logLevels[level]) {
     const data = buildMessage(level, message, extra);
     let m: string | logMessage = "";
     try {
-      m = JSON.stringify(data);
+      m = JSON.stringify(data, replacer());
     } catch(error) {
-      m = data;
+      m = JSON.stringify({
+        time: data.time,
+        level: data.level,
+        message: data.message,
+        traceId: data.traceId,
+        requestId: data.requestId,
+       });
     }
     if (level === "error" || level === "fatal") {
       return process.stderr.write(`${m}\n`);
