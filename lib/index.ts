@@ -83,7 +83,13 @@ function omit<T extends object>(data: T, toOmit: string[]): { [k in Exclude<keyo
 
 function log(level: "info" | "debug" | "warn" | "error" | "fatal", message: string, extra?: Record<string, any>) {
   if (logLevel <= logLevels[level]) {
-    const m = JSON.stringify(buildMessage(level, message, extra));
+    const data = buildMessage(level, message, extra);
+    let m: string | logMessage = "";
+    try {
+      m = JSON.stringify(data);
+    } catch(error) {
+      m = data;
+    }
     if (level === "error" || level === "fatal") {
       return process.stderr.write(`${m}\n`);
     }
