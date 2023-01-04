@@ -117,11 +117,11 @@ function log(level: "info" | "debug" | "warn" | "error" | "fatal", message: stri
   }
 }
 
-export function debug(message: string, extra?: Record<string, any>) { log("debug", message, extra); }
-export function info(message: string, extra?: Record<string, any>) { log("info", message, extra); }
-export function warn(message: string, extra?: Record<string, any>) { log("warn", message, extra); }
-export function error(message: string, extra?: Record<string, any>) { log("error", message, extra); }
-export function fatal(message: string, extra?: Record<string, any>) { log("fatal", message, extra); }
+export function debug(message: Capitalize<string>, extra?: Record<string, any>) { log("debug", message, extra); }
+export function info(message: Capitalize<string>, extra?: Record<string, any>) { log("info", message, extra); }
+export function warn(message: Capitalize<string>, extra?: Record<string, any>) { log("warn", message, extra); }
+export function error(message: Capitalize<string>, extra?: { error: any; [key: string]: any }) { log("error", message, extra); }
+export function fatal(message: Capitalize<string>, extra?: Record<string, any>) { log("fatal", message, extra); }
 
 export function bindExpressMiddleware(req: any, res: any, next: any) {
   ns.bindEmitter(req);

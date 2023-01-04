@@ -75,9 +75,35 @@ function omit(data, toOmit) {
     });
     return result;
 }
+function replacer() {
+    const visited = new WeakSet();
+    return (key, value) => {
+        if (typeof value === "object" && value !== null) {
+            if (visited.has(value)) {
+                return;
+            }
+            visited.add(value);
+        }
+        return value;
+    };
+}
+;
 function log(level, message, extra) {
     if (logLevel <= logLevels[level]) {
-        const m = JSON.stringify(buildMessage(level, message, extra));
+        const data = buildMessage(level, message, extra);
+        let m = "";
+        try {
+            m = JSON.stringify(data, replacer());
+        }
+        catch (error) {
+            m = JSON.stringify({
+                time: data.time,
+                level: data.level,
+                message: data.message,
+                traceId: data.traceId,
+                requestId: data.requestId,
+            });
+        }
         if (level === "error" || level === "fatal") {
             return process.stderr.write(`${m}\n`);
         }
@@ -98,8 +124,8 @@ function bindExpressMiddleware(req, res, next) {
     ns.bindEmitter(req);
     ns.bindEmitter(res);
     ns.run(() => {
-        const traceId = req.header("x-trace-id") || uuid_1.v4();
-        const requestId = req.header("x-request-id") || uuid_1.v4();
+        const traceId = req.header("x-trace-id") || (0, uuid_1.v4)();
+        const requestId = req.header("x-request-id") || (0, uuid_1.v4)();
         cls_hooked_1.default.getNamespace(namespace).set("traceId", traceId);
         cls_hooked_1.default.getNamespace(namespace).set("requestId", requestId);
         next();
@@ -108,8 +134,8 @@ function bindExpressMiddleware(req, res, next) {
 exports.bindExpressMiddleware = bindExpressMiddleware;
 function bindFunction(func, requestId = "", traceId = "") {
     return ns.bind(function () {
-        cls_hooked_1.default.getNamespace(namespace).set("requestId", requestId || uuid_1.v4());
-        cls_hooked_1.default.getNamespace(namespace).set("traceId", traceId || uuid_1.v4());
+        cls_hooked_1.default.getNamespace(namespace).set("requestId", requestId || (0, uuid_1.v4)());
+        cls_hooked_1.default.getNamespace(namespace).set("traceId", traceId || (0, uuid_1.v4)());
         return func.apply(null, arguments);
     });
 }
