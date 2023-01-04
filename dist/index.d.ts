@@ -1,10 +1,7 @@
 export declare function debug(message: Capitalize<string>, extra?: Record<string, any>): void;
 export declare function info(message: Capitalize<string>, extra?: Record<string, any>): void;
 export declare function warn(message: Capitalize<string>, extra?: Record<string, any>): void;
-export declare function error(message: Capitalize<string>, extra?: {
-    error: any;
-    [key: string]: any;
-}): void;
+export declare function error(message: Capitalize<string>, extra?: Record<string, any>): void;
 export declare function fatal(message: Capitalize<string>, extra?: Record<string, any>): void;
 export declare function bindExpressMiddleware(req: any, res: any, next: any): void;
 export declare function bindFunction(func: Function, requestId?: string, traceId?: string): any;
